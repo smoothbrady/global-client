@@ -11,12 +11,17 @@ const linkStyle = {
 const authenticatedOptions = (
 	<>
 		<Nav.Item className='ms-4'>
-			<Link to='#' style={linkStyle}>
+			<Link to='/create' style={linkStyle}>
+				Browse Items
+			</Link>
+		</Nav.Item>
+		<Nav.Item className='ms-4'>
+			<Link to='/cart' style={linkStyle}>
 				Cart
 			</Link>
 		</Nav.Item>
 		<Nav.Item className='ms-4'>
-			<Link to='change-password' style={linkStyle}>
+			<Link to='my-profile' style={linkStyle}>
 				My profile
 			</Link>
 		</Nav.Item>

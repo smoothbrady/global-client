@@ -2,6 +2,8 @@
 import React, { useState, Fragment } from 'react'
 import { Route, Router, Routes } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
+import {Elements} from '@stripe/react-stripe-js';
+import {loadStripe} from '@stripe/stripe-js';
 
 // import AuthenticatedRoute from './components/shared/AuthenticatedRoute'
 import AutoDismissAlert from './components/shared/AutoDismissAlert/AutoDismissAlert'
@@ -12,7 +14,15 @@ import SignUp from './components/auth/SignUp'
 import SignIn from './components/auth/SignIn'
 import SignOut from './components/auth/SignOut'
 import ChangePassword from './components/auth/ChangePassword'
+import ItemsIndex from './components/Items/ItemIndex'
+import ItemCreate from './components/Items/ItemCreate';
 import ItemIndex from './components/Items/ItemIndex'
+import MyProfile from './components/auth/MyProfile'
+import CartIndex from './components/Cart/CartIndex'
+import CheckoutForm from './components/Cart/Stripe/CheckoutForm'
+
+const stripePromise = loadStripe('pk_test_51LzixHFctdQVNwrZfvrkkfBX0bX2b6jWZ6eJnzYIPmUNh4vV5OueA9Ong8lbg5Y8lvaaHYRcBI6e0KZeiuKTixIk00nPUtcwLC');
+
 
 const App = () => {
 
@@ -41,11 +51,17 @@ const App = () => {
 		})
 	}
 
+	const options = {
+		// passing the client secret obtained from the server
+		clientSecret: '{{CLIENT_SECRET}}',
+	};
+
 		return (
 			<Fragment>
 				<Header user={user} />
 				<Routes>
 					<Route path='/' element={<Home msgAlert={msgAlert} user={user} />} />
+					<Route path='/my-profile' element={<MyProfile msgAlert={msgAlert} user={user} />} />
 					<Route
 						path='/sign-up'
 						element={<SignUp msgAlert={msgAlert} setUser={setUser} />}
@@ -54,27 +70,48 @@ const App = () => {
 						path='/sign-in'
 						element={<SignIn msgAlert={msgAlert} setUser={setUser} />}
 					/>
-          <Route
-            path='/sign-out'
-            element={
-              <RequireAuth user={user}>
-                <SignOut msgAlert={msgAlert} clearUser={clearUser} user={user} />
-              </RequireAuth>}
-          />
-          <Route
-            path='/change-password'
-            element={
-              <RequireAuth user={user}>
-                <ChangePassword msgAlert={msgAlert} user={user} />
-              </RequireAuth>}
-          />
-		    <Route path='/items' element={
-				// Auth not working (401, 422 ERRORS), uncomment when auth is functional
-				// <RequireAuth user={user}>
-					<ItemIndex msgAlert={msgAlert} user={user} />
-				// </RequireAuth>
-				}
-			/>
+					<Route
+						path='/cart'
+						element={
+							<RequireAuth user={user}>
+								<CartIndex msgAlert={msgAlert} user={user} />
+								<Elements stripe={stripePromise} options={options}>
+									<CheckoutForm />
+								</Elements>
+							</RequireAuth>}
+					/>
+					<Route
+						path='/sign-out'
+						element={
+						<RequireAuth user={user}>
+							<SignOut msgAlert={msgAlert} clearUser={clearUser} user={user} />
+						</RequireAuth>}
+					/>
+					<Route
+						path='/change-password'
+						element={
+						<RequireAuth user={user}>
+							<ChangePassword msgAlert={msgAlert} user={user} />
+						</RequireAuth>}
+					/>
+					<Route path='/items' element={
+						<RequireAuth user={user}>
+							<ItemsIndex msgAlert={msgAlert} user={user} />
+						</RequireAuth>}
+					/>
+					<Route
+						path='/create'
+						element={
+						<RequireAuth user={user}>
+							<ItemCreate msgAlert={msgAlert} user={user} />
+						</RequireAuth>
+						}
+					/>
+					{/* <Route path='/checkout' element={
+						<RequireAuth user={user}>
+							<Checkout msgAlert={msgAlert} user={user} />
+						</RequireAuth>}
+					/> */}
 				</Routes>
 				{msgAlerts.map((msgAlert) => (
 					<AutoDismissAlert
